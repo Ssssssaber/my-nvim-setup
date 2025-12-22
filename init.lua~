@@ -160,7 +160,6 @@ require("lazy").setup({
 			vim.keymap.set('n', '<F12>', vim.lsp.buf.definition, {})
 			vim.keymap.set('n', 'gr', require('telescope.builtin').lsp_references, { desc = "References" })
 			vim.keymap.set('n', '<F2>', vim.lsp.buf.rename, {}) -- Variable renaming
-			vim.keymap.set('n', 'gh', vim.lsp.buf.hover, { desc = "Show Hover Docs" })
 		end,
 	},
 
