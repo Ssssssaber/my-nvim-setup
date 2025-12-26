@@ -1,3 +1,4 @@
+
 -- TODO:
 -- * breakpoints
 -- * switcing between open editor
@@ -24,6 +25,33 @@ vim.opt.rtp:prepend(lazypath)
 
 -- vim.lsp.config = 
 require("lazy").setup({
+	{
+	  'skywind3000/asyncrun.vim',
+	  config = function()
+		vim.g.asyncrun_open = 8  -- Open quickfix list automatically
+	  end,
+	},
+	{
+	  "folke/tokyonight.nvim",
+	  lazy = false, -- load immediately
+	  priority = 1000, -- load before all other plugins
+	  config = function()
+		require("tokyonight").setup({
+		  style = "storm", -- Choose between 'storm', 'moon', 'night', 'day'
+		  transparent = false, -- Enable transparent background
+		  terminal_colors = true, -- Configure terminal colors
+		  styles = {
+			comments = { italic = true },
+			keywords = { italic = true },
+			functions = {},
+			variables = {},
+			sidebars = "dark", -- style for sidebars, see below.
+			floats = "dark", -- style for floating windows.
+		  },
+		})
+		vim.cmd([[colorscheme tokyonight-storm]])
+	  end,
+	},
 	-- Telescope: Handles "Go to File", "Global Search", "References"
 	{
 		'nvim-telescope/telescope.nvim', tag = '0.1.8',
@@ -32,8 +60,11 @@ require("lazy").setup({
 			local builtin = require('telescope.builtin')
 			-- FIX: Ctrl+f to search files (VS Code style)
 			vim.keymap.set('n', '<C-f>', builtin.find_files, {})
+			vim.keymap.set('n', '<C-fv>', builtin.live_grep, {})
 			-- Global Search (Grep)
 			vim.keymap.set('n', '<leader>sg', builtin.live_grep, {})
+			vim.keymap.set('n', '<leader>er', '<cmd>Telescope diagnostics<CR>', { desc = 'Open Telescope diagnostics' })
+			
 		end
 	},
 	-- Git: Seeing changes in a file (Gutter signs)
@@ -174,7 +205,7 @@ require("lazy").setup({
 		},
 
 		keys = {
-			{ "<leader>b", function() require('dap').toggle_breakpoint() end, desc = "Toggle Breakpoint" },
+			{ "<leader>bp", function() require('dap').toggle_breakpoint() end, desc = "Toggle Breakpoint" },
 			{ "<F5>", function() require('dap').continue() end, desc = "Debug Continue" },
 			{ "<F10>", function() require('dap').step_over() end, desc = "Step Over" },
 			{ "<F11>", function() require('dap').step_into() end, desc = "Step Into" },
@@ -317,8 +348,24 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 vim.keymap.set('n', '<CR>', function()
     if vim.v.hlsearch == 1 then
-        vim.cmd('nohlsearch')
+        vim.cmd('nohlsearch' )
     end
     return '<CR>'
 end, { expr = true, silent = true })
+
+local function build_with_cmake()
+	local build_command = "mkdir -p build && cd build && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .. && make -j8"
+
+	local confirm = vim.fn.confirm("Build the C++ project?", "&Yes\n&No", 1)
+	if confirm == 1 then
+		-- Use AsyncRun to run the build command asynchronously
+		vim.cmd('AsyncRun ' .. build_command)
+	else
+		print("Build cancelled.")
+	end
+
+	print("Build completed!")
+end
+
+vim.keymap.set('n', '<leader>b', build_with_cmake, { desc = "Build with cmake" })
 
