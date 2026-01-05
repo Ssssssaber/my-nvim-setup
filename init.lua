@@ -22,9 +22,9 @@ require("lazy").setup({
 		version = "2.*",
 		opts = {},
 		keys = {
-			{ "<leader>v",  ft = "lua",          desc = "LÖVE" },
-			{ "<leader>vv", "<cmd>LoveRun<cr>",  ft = "lua",   desc = "Run LÖVE" },
-			{ "<leader>vs", "<cmd>LoveStop<cr>", ft = "lua",   desc = "Stop LÖVE" },
+			{ "<leader>v", ft = "lua", desc = "LÖVE" },
+			{ "<leader>vv", "<cmd>LoveRun<cr>", ft = "lua", desc = "Run LÖVE" },
+			{ "<leader>vs", "<cmd>LoveStop<cr>", ft = "lua", desc = "Stop LÖVE" },
 		},
 	},
 	{
@@ -183,6 +183,7 @@ require("lazy").setup({
 						},
 						workspace = {
 							library = vim.api.nvim_get_runtime_file("", true),
+							[vim.fn.expand("%:p:h")] = true,
 						},
 						telemetry = {
 							enable = false,
