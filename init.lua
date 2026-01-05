@@ -159,16 +159,39 @@ require("lazy").setup({
 		"williamboman/mason-lspconfig.nvim",
 		dependencies = { "williamboman/mason.nvim" },
 		config = function()
-		  require("mason-lspconfig").setup({ ensure_installed = { "clangd" } })
+		  require("mason-lspconfig").setup({ ensure_installed = { "clangd", "lua_ls" } })
 		end,
 	  },
 	  {
 		"neovim/nvim-lspconfig",
 		dependencies = { "williamboman/mason.nvim", "williamboman/mason-lspconfig.nvim" },
 		config = function()
+
 		  local capabilities = require('blink.cmp').get_lsp_capabilities()
 		  vim.lsp.enable("clangd")
-		  vim.lsp.config("*", { capabilities = capabilities })
+		  vim.lsp.config("clangd", { capabilities = capabilities })
+
+		  vim.lsp.enable("lua_ls")
+		  vim.lsp.config("lua_ls", {
+			  capabilities = capabilities,
+			  settings = {
+					Lua = {
+					  runtime = {
+						version = 'LuaJIT',
+					  },
+					  diagnostics = {
+						globals = { 'vim' },
+					  },
+					  workspace = {
+						library = vim.api.nvim_get_runtime_file("", true),
+					  },
+					  telemetry = {
+						enable = false,
+					  },
+				  }
+			  }
+		  })
+
 		  vim.keymap.set('n', '<F12>', vim.lsp.buf.definition, {})
 		  vim.keymap.set('n', 'gr', require('telescope.builtin').lsp_references, { desc = "References" })
 		  vim.keymap.set('n', '<F2>', vim.lsp.buf.rename, {})
@@ -285,5 +308,6 @@ local function build_with_cmake()
 	  local confirm = vim.fn.confirm("Build the C++ project?", "&Yes\n&No", 1)
 	  if confirm == 1 then vim.cmd('AsyncRun ' .. build_command) else print("Build cancelled.") end
 end
+
 vim.keymap.set('n', '<leader>b', build_with_cmake, { desc = "Build with cmake" })
 
